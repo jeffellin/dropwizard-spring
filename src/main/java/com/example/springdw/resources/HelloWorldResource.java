@@ -2,6 +2,7 @@ package com.example.springdw.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.example.springdw.HelloWorldConfiguration;
+import com.example.springdw.HelloWorldSpringConfiguration;
 import com.example.springdw.model.Saying;
 
 import javax.ws.rs.GET;
@@ -29,6 +30,9 @@ public class HelloWorldResource {
 
     }
 
+    @Autowired
+    HelloWorldSpringConfiguration.TempConverter tempConverter;
+
     private final String template;
     private final String defaultName;
     private final AtomicLong counter;
@@ -37,8 +41,9 @@ public class HelloWorldResource {
 
     @GET
     @Timed
-    public Saying sayHello(@QueryParam("name") Optional<String> name) {
-        final String value = String.format(template, name.or(defaultName));
+    public Saying sayHello(@QueryParam("name") Optional<String> name, @QueryParam("tempf") Optional<Float> tempf) {
+        final Float tempc = tempConverter.fahrenheitToCelsius(tempf.or(0f));
+        final String value = String.format(template, name.or(defaultName),tempc);
         return new Saying(counter.incrementAndGet(), value);
     }
 }
